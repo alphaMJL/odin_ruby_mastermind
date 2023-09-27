@@ -95,12 +95,13 @@ class Game
     until @win
       # get error checked move, pass to logic: win? how many color right? how many position right? pass array to board)
       board.moves.push(logic.do_turn(get_current_move))
+      system "clear"
       board.draw_board
     end
   end
 end
 class Game_logic
-#check if move is correct, build array to send to board by pushing status to array and update board, update Game.win
+
   def initialize(game)
     @current_solution = []
     #@current_move = []
@@ -132,7 +133,7 @@ class Game_logic
   def how_many_correct_colors(current_move, current_solution)
     total_correct = 0
   
-    # Iterate through each element of the current_move array
+    # Iterate through each element of the current_move array - how many colors are correct? total number pushed to move array
     current_move.each_with_index do |color, index|
       if current_solution.include?(color)
         total_correct += 1
@@ -147,7 +148,7 @@ class Game_logic
   def how_many_correct_positions(current_move, current_solution)
     total_correct = 0
   
-    # Iterate through each element of the current_move and current_solution arrays *******************NOT WORKING****************** incorrect value
+    # Iterate through each element of the current_move array - how many positions are correct? total number pushed to move array *******************NOT WORKING****************** incorrect value
     current_move.each_with_index do |color, index|
       if color == current_solution[index]
         total_correct += 1
@@ -160,7 +161,7 @@ class Game_logic
   def update_board_moves
     @board.moves = board.moves.push(@current_move)
   end
-
+  #check if move is correct, build array to return to game loop
   def do_turn(current_move)
     is_current_move_win(current_move, @current_solution)
     how_many_correct_colors(@current_move, @current_solution)
