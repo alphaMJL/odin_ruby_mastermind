@@ -1,7 +1,7 @@
 class Board
   attr_accessor :moves
   #contains placeholders. Will initialize to empty array.
-  moves = [
+  @moves = [
     ['X', 'O', 'Y', 'G', 2, 1],
     ['R', 'B', 'G', 'Y', 0, 0],
     # Add more moves here...
@@ -54,7 +54,77 @@ class Board
       
         
     
-    draw_mastermind_board(moves)
+    draw_mastermind_board(@moves)
       
     
 end
+
+class Game
+  include Input
+  attr_accessor :win
+
+  @win = false
+
+
+  def play
+    
+    board.draw_board
+    until @win
+      
+      board.current_move = get_current_move
+      game.do_turn
+      board.draw_board      
+  end
+
+end
+#check if move is correct, build array to send to board by pushing status to array and update board, update Game.win
+class Game_logic
+  @current_solution = nil
+  @current_move = nil
+  
+
+  def is_current_move_win(current_move, current_solution)
+    if current_move == current_solution
+      game.win = true
+    end
+  end
+
+  def how_many_correct_colors(current_move, current_solution)
+    total_correct = 0
+    #checking logic
+    @current_move.push(total_correct)
+  end
+
+  def how_many_correct_positions(current_move, current_solution)
+    total_correct = 0
+    #checking logic
+    @current_move.push(total_correct)
+  end
+
+  def update_board_moves
+    board.moves = board.moves.push(@current_move)
+  end
+
+  def do_turn
+    is_current_move_win
+    how_many_correct_colors
+    how_many_correct_positions
+    update_board_moves
+  end
+end
+
+module Input 
+
+  def get_current_move
+    puts "Input current move. RBBR = Red, Blue, Blue, Red"
+    current_move = gets.chomp.downcase 
+    #error check move r b g y o p c m, 4 digits
+    return current_move
+  end
+
+end
+
+board = Board.new
+game = Game.new
+logic = Game_logic.new
+game.play
