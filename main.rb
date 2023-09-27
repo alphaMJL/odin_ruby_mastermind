@@ -7,6 +7,9 @@ class Board
     # Add more moves here...
   ]
 
+  def reset_board
+    @moves = []
+
   def draw_board(moves)
     board = <<-BOARD
     +--------------------------+
@@ -64,7 +67,10 @@ class Game
   attr_accessor :win
 
   @win = false
-
+  
+  def reset_game
+    @win = false
+  end
 
   def play
     
@@ -79,9 +85,22 @@ class Game
 end
 #check if move is correct, build array to send to board by pushing status to array and update board, update Game.win
 class Game_logic
-  @current_solution = nil
-  @current_move = nil
+
+    def initialize
+      @current_solution = []
+      @current_move = []
+    end
+
+  def reset_game
+    create_solution
+    @current_move = []
+  end
   
+  def create_solution
+    possible_moves = ['r','b','g','y','o','p','c','m']
+    #create random solution
+    4.times {@current_solution.push(possible_moves[rand(0..7)])}
+  end
 
   def is_current_move_win(current_move, current_solution)
     if current_move == current_solution
@@ -124,7 +143,11 @@ module Input
 
 end
 
+
 board = Board.new
 game = Game.new
 logic = Game_logic.new
 game.play
+
+
+
