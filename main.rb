@@ -1,17 +1,37 @@
+module Input 
+
+  def get_current_move
+    valid_colors = %w[r b g y o p c m]
+    
+    loop do
+      puts "Input current move. RBBR = Red, Blue, Blue, Red"
+      current_move = gets.chomp.downcase
+  
+      # Check if the input consists of valid colors and has exactly 4 characters
+      if current_move.match?(/^[#{valid_colors.join}]{4}$/)
+
+        return current_move.chars
+      else
+        puts "Invalid input. Please enter a valid move with 4 characters from: #{valid_colors.join(', ')}"
+      end
+    end
+  end
+  
+
+end
+
 class Board
   attr_accessor :moves
-  #contains placeholders. Will initialize to empty array.
-  @moves = [
-    ['X', 'O', 'Y', 'G', 2, 1],
-    ['R', 'B', 'G', 'Y', 0, 0],
-    # Add more moves here...
-  ]
+  
+  def initialize
+    @moves = []
+  end
 
   def reset_board
     @moves = []
   end
 
-  def draw_board(moves)
+  def draw_board()
     board = <<-BOARD
     +--------------------------+
     |--------MASTERMIND--------|
@@ -26,11 +46,11 @@ class Board
     EMPTY
   
     # Add empty rows for unused moves
-    empty_rows = empty_row * (12 - moves.length)
+    empty_rows = empty_row * (12 - @moves.length)
     board += empty_rows
   
     # Add moves starting from the bottom and moving upwards
-    moves.reverse_each do |move|
+    @moves.reverse_each do |move|
       code_1, code_2, code_3, code_4, correct_colors, correct_positions = move
   
       move_row = <<-MOVE
@@ -41,56 +61,53 @@ class Board
       board += move_row
     end
       
-      # Legend for colors and status
-      legend = <<-LEGEND
-    
-      Color Legend:
-      R - Red    | B - Blue   | G - Green | Y - Yellow
-      O - Orange | P - Purple | C - Cyan  | M - Magenta
-    
-      Status Legend:
-      C - Correct Color   | P - Correct Position
-      LEGEND
-    
-      puts board
-      puts legend
+    # Legend for colors and status
+    legend = <<-LEGEND
+  
+    Color Legend:
+    R - Red    | B - Blue   | G - Green | Y - Yellow
+    O - Orange | P - Purple | C - Cyan  | M - Magenta
+  
+    Status Legend:
+    C - Correct Color   | P - Correct Position
+    LEGEND
+  
+    puts board
+    puts legend
   end
-      
-        
-    
-    draw_mastermind_board(@moves)
-      
-    
 end
 
 class Game
   include Input
   attr_accessor :win
+  def initialize
+    @win = false
+  end
 
-  @win = false
   
   def reset_game
     @win = false
   end
 
-  def play
+  def play(board, logic)
     
     board.draw_board
     until @win
-      
-      board.current_move = get_current_move
-      game.do_turn
-      board.draw_board      
+      # get error checked move, pass to logic: win? how many color right? how many position right? pass array to board)
+      board.moves.push(logic.do_turn(get_current_move))
+      board.draw_board
+    end
   end
-
 end
-
 class Game_logic
 #check if move is correct, build array to send to board by pushing status to array and update board, update Game.win
-    def initialize
-      @current_solution = []
-      @current_move = []
-    end
+  def initialize(game)
+    @current_solution = []
+    #@current_move = []
+    @game = game
+    create_solution
+    p @current_solution
+  end
 
   def reset_game
     create_solution
@@ -98,14 +115,17 @@ class Game_logic
   end
   
   def create_solution
-    possible_moves = ['r','b','g','y','o','p','c','m']
+    possible_moves = %w[r b g y o p c m]
     #create random solution
     4.times {@current_solution.push(possible_moves[rand(0..7)])}
   end
 
   def is_current_move_win(current_move, current_solution)
+    p current_solution
+    p current_move
+    @current_move = current_move
     if current_move == current_solution
-      game.win = true
+      @game.win = true
     end
   end
 
@@ -116,65 +136,44 @@ class Game_logic
     current_move.each_with_index do |color, index|
       if current_solution.include?(color)
         total_correct += 1
-        # To avoid counting the same color twice, remove it from current_solution
-        current_solution.delete_at(current_solution.index(color))
+
+      
       end
     end
-  
-    total_correct
+    @current_move.push(total_correct)
+    
   end
   
   def how_many_correct_positions(current_move, current_solution)
     total_correct = 0
   
-    # Iterate through each element of the current_move and current_solution arrays
+    # Iterate through each element of the current_move and current_solution arrays *******************NOT WORKING****************** incorrect value
     current_move.each_with_index do |color, index|
       if color == current_solution[index]
         total_correct += 1
       end
     end
-  
-    total_correct
+    @current_move.push(total_correct)
+    p @current_move
   end
 
   def update_board_moves
-    board.moves = board.moves.push(@current_move)
+    @board.moves = board.moves.push(@current_move)
   end
 
-  def do_turn
-    is_current_move_win
-    how_many_correct_colors
-    how_many_correct_positions
-    update_board_moves
+  def do_turn(current_move)
+    is_current_move_win(current_move, @current_solution)
+    how_many_correct_colors(@current_move, @current_solution)
+    how_many_correct_positions(@current_move, @current_solution)
+    return @current_move
+    #update_board_moves
   end
+
 end
 
-module Input 
-
-  def get_current_move
-    valid_colors = %w[r b g y o p c m]
-    
-    loop do
-      puts "Input current move. RBBR = Red, Blue, Blue, Red"
-      current_move = gets.chomp.downcase
-  
-      # Check if the input consists of valid colors and has exactly 4 characters
-      if current_move.match?(/^[#{valid_colors.join}]{4}$/)
-        return current_move
-      else
-        puts "Invalid input. Please enter a valid move with 4 characters from: #{valid_colors.join(', ')}"
-      end
-    end
-  end
-  
-
-end
 
 
 board = Board.new
 game = Game.new
-logic = Game_logic.new
-game.play
-
-
-
+logic = Game_logic.new(game)
+game.play(board, logic)
