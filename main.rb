@@ -16,7 +16,21 @@ module Input
       end
     end
   end
+
+  def opening_player_selection
+    loop do
+      
+      player_selection = gets.chomp
   
+      # Check if 1 or 2
+      if player_selection.match?(/^[12]$/)
+
+        return player_selection
+      else
+        puts "Invalid input. Enter 1 or 2"
+      end
+    end
+  end  
 
 end
 
@@ -142,11 +156,13 @@ class Game
     board.draw_opening
     
     
-    case gets.chomp.to_i #get error checked input from Input
-    when 1
+    case opening_player_selection
+    when '1'
       play_as_player(board, logic)
-    when 2
+    when '2'
       play_as_cpu(board, logic)
+    else
+      puts "INPUT ERROR EXITING" #TESTING
     end
   end
 
@@ -162,8 +178,9 @@ class Game
 
   end
 
-  def play_as_cpu
-  # game loop for cpu guessing
+  def play_as_cpu(board, logic)
+    # game loop for cpu guessing
+    puts "Buzz Whirl CPU goes VROOM" #PLACEHOLDER
   end
 
 end
