@@ -4,6 +4,7 @@ module Input
     valid_colors = %w[r b g y o p c m]
     
     loop do
+      puts ''
       puts "Input current move. RBBR = Red, Blue, Blue, Red"
       current_move = gets.chomp.downcase
   
@@ -17,7 +18,7 @@ module Input
     end
   end
 
-  def opening_player_selection
+  def select_one_or_two
     loop do
       
       player_selection = gets.chomp
@@ -98,7 +99,7 @@ class Board
 
 
     $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-    $              MASTERMIND                $
+    $               MASTERMIND               $
     $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
     Welcome to Mastermind where you must guess the secret code in 12 guesses.
@@ -140,41 +141,66 @@ end
 
 class Game
   include Input
-  attr_accessor :win
+  attr_accessor :end
   def initialize
-    @win = false
+    @end = false
   end
 
   
   def reset_game
-    @win = false
+    @end = false
   end
   
 
   def play(board, logic)
-    system "clear"
-    board.draw_opening
+    loop do
+      system "clear"
+      board.draw_opening
     
     
-    case opening_player_selection
-    when '1'
-      play_as_player(board, logic)
-    when '2'
-      play_as_cpu(board, logic)
-    else
-      puts "INPUT ERROR EXITING" #TESTING
+      case select_one_or_two
+      when '1'
+        play_as_player(board, logic)
+      when '2'
+        play_as_cpu(board, logic)
+      else
+        puts "INPUT ERROR EXITING" #TESTING
+      end
+      puts ''
+      puts "Congratulations! You discovered the secret code of #{logic.current_solution.to_s.upcase}."
+
+      puts ''
+      puts 'Enter 1 to play again'
+      puts 'Enter 2 to exit'
+
+      if select_one_or_two == '2'
+        exit
+      else 
+        reset_game
+        board.reset_board
+        logic.reset_game
+      end
+      
     end
   end
 
   def play_as_player(board, logic)
     system "clear"
+    p logic.current_solution #TESTING
     board.draw_board
-    until @win
+    until @end
       # get error checked move, pass to logic: win? how many color right? how many position right? pass array to board)
       board.moves.push(logic.do_turn(get_current_move))
       system "clear"
+      p logic.current_solution #TESTING
       board.draw_board
+      if board.moves.length >= 12
+        puts "You failed to guess the correct code of #{logic.current_solution.to_s.upcase}"
+        @end = true
+      end
     end
+
+    
 
   end
 
@@ -190,6 +216,8 @@ end
 
 class Game_logic
 
+  attr_reader :current_solution
+
   def initialize(game)
     @current_solution = []
     #@current_move = []
@@ -199,6 +227,7 @@ class Game_logic
   end
 
   def reset_game
+    @current_solution = []
     create_solution
     @current_move = []
   end
@@ -212,7 +241,7 @@ class Game_logic
   def is_current_move_win(current_move, current_solution)
     @current_move = current_move
     if current_move == current_solution
-      @game.win = true
+      @game.end = true
     end
   end
 
