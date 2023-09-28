@@ -18,6 +18,24 @@ module Input
     end
   end
 
+  def enter_code
+    valid_colors = %w[r b g y o p c m]
+    
+    loop do
+      puts ''
+      puts "Enter a code for the computer to try to solve."
+      current_move = gets.chomp.downcase
+  
+      # Check if the input consists of valid colors and has exactly 4 characters
+      if current_move.match?(/^[#{valid_colors.join}]{4}$/)
+        #p current_move.chars
+        return current_move.chars
+      else
+        puts "Invalid input. Please enter a valid move with 4 characters from: #{valid_colors.join(', ')}"
+      end
+    end
+  end
+
   def select_one_or_two
     loop do
       
@@ -187,15 +205,20 @@ class Game
 
   def play_as_player(board, logic)
     system "clear"
-    p logic.current_solution #TESTING
+    puts ['','','']
     board.draw_board
+    
     until @end
       # get error checked move, pass to logic: win? how many color right? how many position right? pass array to board)
       board.moves.push(logic.do_turn(get_current_move))
-      #system "clear"
-      p logic.current_solution #TESTING
+      system "clear"
+      puts ''
+      p logic.current_solution #TESTING - replace with puts '' for proper gamespace draw
+      puts ''
+      
       board.draw_board
       if board.moves.length >= 12
+        puts ''
         puts "You failed to guess the correct code of #{logic.current_solution.to_s.upcase}"
         @end = true
       elsif @end && @win
@@ -211,16 +234,22 @@ class Game
 
   def play_as_cpu(board, logic)
     system "clear"
-    p logic.current_solution #TESTING
+    puts ['','','']
     board.draw_board
+    logic.current_solution = enter_code
     until @end
       # get error checked move, pass to logic: win? how many color right? how many position right? pass array to board)
+      
       board.moves.push(logic.do_turn(logic.cpu_move)) 
       system "clear"
-      p logic.current_solution #TESTING
+      puts "You selected the following code. The computer can't see it. I swear..."
+      p logic.current_solution 
+      puts ''
       board.draw_board
+      sleep(rand(2..3))
       if board.moves.length >= 12
-        puts "You failed to guess the correct code of #{logic.current_solution.to_s.upcase}"
+        puts ''
+        puts "The computer failed to guess the correct code of #{logic.current_solution.to_s.upcase}"
         @end = true
       elsif @end && @win
         puts ''
@@ -236,7 +265,7 @@ end
 
 class Game_logic
 
-  attr_reader :current_solution
+  attr_accessor :current_solution
 
   def initialize(game)
     @current_solution = []
