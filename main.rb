@@ -135,12 +135,23 @@ class Game
   def reset_game
     @win = false
   end
+  
 
   def play(board, logic)
     system "clear"
     board.draw_opening
-    dummy_variable = gets 'please wait'
     
+    
+    case gets.chomp.to_i #get error checked input from Input
+    when 1
+      play_as_player(board, logic)
+    when 2
+      play_as_cpu(board, logic)
+    end
+  end
+
+  def play_as_player(board, logic)
+    system "clear"
     board.draw_board
     until @win
       # get error checked move, pass to logic: win? how many color right? how many position right? pass array to board)
@@ -148,8 +159,18 @@ class Game
       system "clear"
       board.draw_board
     end
+
   end
+
+  def play_as_cpu
+  # game loop for cpu guessing
+  end
+
 end
+
+
+
+
 class Game_logic
 
   def initialize(game)
