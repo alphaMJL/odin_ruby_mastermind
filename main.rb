@@ -75,6 +75,53 @@ class Board
     puts board
     puts legend
   end
+
+  
+
+  def draw_opening
+    opening_screen = <<-OPENING
+
+
+
+    $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+    $              MASTERMIND                $
+    $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+    Welcome to Mastermind where you must guess the secret code in 12 guesses.
+    The code will consist of 4 characters representing colors.
+    After each guess, you will be shown how many characters are the "Correct Color"
+    and how many are also in the "Correct position"
+
+    For example: If the code is RBPG, and you guess GYRG, you will be informed that
+    R and G from your guess are in the correct answer "Correct Color = 2" and a G is
+    in the correct positions, so "Correct Position = 1"
+
+    This will be shown on the board like this:
+
+    +--------------------------+
+    |--------MASTERMIND--------|
+    +---+---+---+---+--+---+---+
+    | 1 | 2 | 3 | 4 |  | C | P |
+    +---+---+---+---+  +---+---+
+    |   |   |   |   |  |   |   |
+    +---+---+---+---+  +---+---+
+    | G | Y | R | G |  | 2 | 1 |  <--- Your guess and the reults
+    +---+---+---+---+  +---+---+
+
+
+    Color Legend:
+    R - Red    | B - Blue   | G - Green | Y - Yellow
+    O - Orange | P - Purple | C - Cyan  | M - Magenta
+
+    Status Legend:
+    C - Correct Color   | P - Correct Position
+
+    Enter 1 to play as the code-breaker.
+    Enter 2 to enter a code for the computer to try to solve.
+    OPENING
+
+    puts opening_screen
+  end
 end
 
 class Game
@@ -90,6 +137,9 @@ class Game
   end
 
   def play(board, logic)
+    system "clear"
+    board.draw_opening
+    dummy_variable = gets 'please wait'
     
     board.draw_board
     until @win
