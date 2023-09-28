@@ -122,8 +122,6 @@ class Game_logic
   end
 
   def is_current_move_win(current_move, current_solution)
-    p current_solution
-    p current_move
     @current_move = current_move
     if current_move == current_solution
       @game.win = true
@@ -132,30 +130,34 @@ class Game_logic
 
   def how_many_correct_colors(current_move, current_solution)
     total_correct = 0
-  
-    # Iterate through each element of the current_move array - how many colors are correct? total number pushed to move array
-    current_move.each_with_index do |color, index|
-      if current_solution.include?(color)
-        total_correct += 1
+    # create hash from solution to check against
+    count_hash = Hash.new(0)
+    current_solution.each { |element| count_hash[element] += 1 }
+    #take current_move and look at each element? if element exists in hash and has a value > 1 increase total_correct. minus 1 from hash counter(prevent duplicates)
+    current_move.each do |element2|
 
-      
+        if count_hash.key?(element2) && count_hash[element2] > 0
+          
+          total_correct += 1
+          count_hash[element2] -= 1
+        end
       end
-    end
-    @current_move.push(total_correct)
-    
+      # push to the array which will go to board for drawing to console
+      @current_move.push(total_correct)
   end
   
   def how_many_correct_positions(current_move, current_solution)
     total_correct = 0
   
-    # Iterate through each element of the current_move array - how many positions are correct? total number pushed to move array *******************NOT WORKING****************** incorrect value
+    # Iterate through each element of the current_move array - how many positions are correct? total number pushed to move array 
     current_move.each_with_index do |color, index|
       if color == current_solution[index]
         total_correct += 1
       end
     end
+    # push to the array which will go to board for drawing to console
     @current_move.push(total_correct)
-    p @current_move
+    
   end
 
   def update_board_moves
