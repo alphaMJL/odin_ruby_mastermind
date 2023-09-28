@@ -10,7 +10,7 @@ module Input
   
       # Check if the input consists of valid colors and has exactly 4 characters
       if current_move.match?(/^[#{valid_colors.join}]{4}$/)
-
+        #p current_move.chars
         return current_move.chars
       else
         puts "Invalid input. Please enter a valid move with 4 characters from: #{valid_colors.join(', ')}"
@@ -120,7 +120,7 @@ class Board
     +---+---+---+---+  +---+---+
     |   |   |   |   |  |   |   |
     +---+---+---+---+  +---+---+
-    | G | Y | R | G |  | 2 | 1 |  <--- Your guess and the reults
+    | G | Y | R | G |  | 2 | 1 |  <--- Your guess and the results
     +---+---+---+---+  +---+---+
 
 
@@ -141,8 +141,10 @@ end
 
 class Game
   include Input
-  attr_accessor :end
+  attr_accessor :end, :win
+
   def initialize
+    @win = false
     @end = false
   end
 
@@ -166,8 +168,7 @@ class Game
       else
         puts "INPUT ERROR EXITING" #TESTING
       end
-      puts ''
-      puts "Congratulations! You discovered the secret code of #{logic.current_solution.to_s.upcase}."
+      
 
       puts ''
       puts 'Enter 1 to play again'
@@ -191,12 +192,16 @@ class Game
     until @end
       # get error checked move, pass to logic: win? how many color right? how many position right? pass array to board)
       board.moves.push(logic.do_turn(get_current_move))
-      system "clear"
+      #system "clear"
       p logic.current_solution #TESTING
       board.draw_board
       if board.moves.length >= 12
         puts "You failed to guess the correct code of #{logic.current_solution.to_s.upcase}"
         @end = true
+      elsif @end && @win
+        puts ''
+        puts "Congratulations! You discovered the secret code of #{logic.current_solution.to_s.upcase}."
+
       end
     end
 
@@ -205,8 +210,23 @@ class Game
   end
 
   def play_as_cpu(board, logic)
-    # game loop for cpu guessing
-    puts "Buzz Whirl CPU goes VROOM" #PLACEHOLDER
+    system "clear"
+    p logic.current_solution #TESTING
+    board.draw_board
+    until @end
+      # get error checked move, pass to logic: win? how many color right? how many position right? pass array to board)
+      board.moves.push(logic.do_turn(logic.cpu_move)) 
+      system "clear"
+      p logic.current_solution #TESTING
+      board.draw_board
+      if board.moves.length >= 12
+        puts "You failed to guess the correct code of #{logic.current_solution.to_s.upcase}"
+        @end = true
+      elsif @end && @win
+        puts ''
+        puts "Congratulations! You discovered the secret code of #{logic.current_solution.to_s.upcase}."
+      end
+    end
   end
 
 end
@@ -223,7 +243,6 @@ class Game_logic
     #@current_move = []
     @game = game
     create_solution
-    p @current_solution
   end
 
   def reset_game
@@ -242,6 +261,7 @@ class Game_logic
     @current_move = current_move
     if current_move == current_solution
       @game.end = true
+      @game.win = true
     end
   end
 
@@ -262,10 +282,10 @@ class Game_logic
       # push to the array which will go to board for drawing to console
       @current_move.push(total_correct)
   end
-  
+
   def how_many_correct_positions(current_move, current_solution)
     total_correct = 0
-  
+
     # Iterate through each element of the current_move array - how many positions are correct? total number pushed to move array 
     current_move.each_with_index do |color, index|
       if color == current_solution[index]
@@ -288,10 +308,20 @@ class Game_logic
     return @current_move
     #update_board_moves
   end
+  def cpu_move
+    #return array of 4 strings of valid moves
+    valid_colors = %w[r b g y o p c m]
+    move = []
 
+    4.times do
+       #Randomly select a valid color from the valid_colors array
+      move << valid_colors.sample
+    end
+
+    return move
+    
+  end
 end
-
-
 
 board = Board.new
 game = Game.new
