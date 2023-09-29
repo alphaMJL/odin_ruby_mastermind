@@ -1,12 +1,11 @@
 # Input handling error checking
-module Input 
+module Input
   def get_current_move
     valid_colors = %w[r b g y o p c m]
     loop do
       puts ''
       puts "Input current move. RBBR = Red, Blue, Blue, Red"
       current_move = gets.chomp.downcase
-
       # Check if the input consists of valid colors and has exactly 4 characters
       if current_move.match?(/^[#{valid_colors.join}]{4}$/)
         #p current_move.chars
@@ -25,7 +24,7 @@ module Input
       current_move = gets.chomp.downcase
       # Check if the input consists of valid colors and has exactly 4 characters
       if current_move.match?(/^[#{valid_colors.join}]{4}$/)
-        #p current_move.chars
+        # p current_move.chars
         return current_move.chars
       else
         puts "Invalid input. Please enter a valid move with 4 characters from: #{valid_colors.join(', ')}"
@@ -38,7 +37,6 @@ module Input
       player_selection = gets.chomp
       # Check if 1 or 2
       if player_selection.match?(/^[12]$/)
-
         return player_selection
       else
         puts "Invalid input. Enter 1 or 2"
@@ -97,7 +95,7 @@ class Board
     O - Orange | P - Purple | C - Cyan  | M - Magenta
 
     Status Legend:
-    C - Correct Color   | P - Correct Position
+    C - Correct Color   | P - Correct Color and Position
     LEGEND
 
     puts board
@@ -118,9 +116,9 @@ class Board
     After each guess, you will be shown how many characters are the "Correct Color"
     and how many are also in the "Correct position"
 
-    For example: If the code is RBPG, and you guess GYRG, you will be informed that
-    R and G from your guess are in the correct answer "Correct Color = 2" and a G is
-    in the correct positions, so "Correct Position = 1"
+    For example: If the code is RBPG, and you guess GYRG, you will see that because
+    R and G from your guess are in the correct answer, "Correct Color = 2" and a G is
+    the correct color AND is in the correct position, so "Correct Color and Position = 1"
 
     This will be shown on the board like this:
 
@@ -140,7 +138,7 @@ class Board
     O - Orange | P - Purple | C - Cyan  | M - Magenta
 
     Status Legend:
-    C - Correct Color   | P - Correct Position
+    C - Correct Color   | P - Correct Color and Position
 
     Enter 1 to play as the code-breaker.
     Enter 2 to enter a code for the computer to try to solve.
@@ -218,7 +216,7 @@ class Game
 
   def play_as_cpu(board, logic)
     system 'clear'
-    puts ['' ,'', '']
+    puts ['', '', '']
     board.draw_board
     logic.current_solution = enter_code
     until @end
@@ -246,10 +244,11 @@ end
 class Game_logic
   attr_accessor :current_solution
 
-  def initialize(game)
+  def initialize(game, board)
     @current_solution = []
     @current_move = []
     @game = game
+    @board = board
     create_solution
   end
 
@@ -292,7 +291,7 @@ class Game_logic
   def how_many_correct_positions(current_move, current_solution)
     total_correct = 0
 
-    # Iterate through each element of the current_move array - how many positions are correct? total number pushed to move array 
+    # Iterate through each element of the current_move array - how many colors and positions are correct? total number pushed to move array
     current_move.each_with_index do |color, index|
       if color == current_solution[index]
         total_correct += 1
@@ -313,22 +312,53 @@ class Game_logic
     how_many_correct_positions(@current_move, @current_solution)
     @current_move
     # update_board_moves
-  end
+  end  
 
   def cpu_move
-    # return array of 4 strings of valid moves
-    valid_colors = %w[r b g y o p c m]
-    move = []
+    result = []
+    until @board.moves[0..3] == @current_solution
+      
+        if @board.moves[4].nil? || @board.moves[4] < 4
+          result = finding_colors
 
-    4.times do
-       # Randomly select a valid color from the valid_colors array
-      move << valid_colors.sample
+        else
+          finding_random(result)
+        end
     end
-    move
+  end
+
+  def finding_colors
+    valid_colors = %w[r b g y o p c m]
+    working_answer = []
+    definite_color = []
+    if definite_color.length == 0
+      valid_colors.shift
+      working_answer= %w[r r r r]
+      %w[r r r r]
+    else
+      previous_move = previous_move_status #array with [last move 0..3] [increase in colors right 4], [increase both right 5]
+      colors_increase = previous_move[4]
+      both_increase = previous_move[5]
+
+      # copy definite color to working answer
+      # fill remaining spaces of working_answer with valid_colors[0]
+      # valid_colors.shift
+    end
+  end
+
+  def previous_move_status
+    return_array = @board.moves.slice[-1][0..3]
+    return_array.push(board.moves[-1][4] - board[-2][4])
+    return_array.push(board.moves[-1][5] - board[-2][5])
+    return_array
+  end
+    
+  def finding_random
+    puts "One day this will return a move"
   end
 end
 
 board = Board.new
 game = Game.new
-logic = Game_logic.new(game)
+logic = Game_logic.new(game, board)
 game.play(board, logic)
