@@ -1,3 +1,4 @@
+require 'pry'
 # Input handling error checking
 module Input
   def get_current_move
@@ -9,7 +10,8 @@ module Input
       # Check if the input consists of valid colors and has exactly 4 characters
       if current_move.match?(/^[#{valid_colors.join}]{4}$/)
         #p current_move.chars
-        return current_move.chars
+    
+        return current_move.chars # return array of strings as answer
       else
         puts "Invalid input. Please enter a valid move with 4 characters from: #{valid_colors.join(', ')}"
       end
@@ -141,7 +143,7 @@ class Board
     C - Correct Color   | P - Correct Color and Position
 
     Enter 1 to play as the code-breaker.
-    Enter 2 to enter a code for the computer to try to solve.
+    Enter 2 to enter a code for the computer to try to solve. *Non-functioning*
     OPENING
 
     puts opening_screen
@@ -250,12 +252,14 @@ class Game_logic
     @game = game
     @board = board
     create_solution
+    @first_move = true # for computer turn tracking
   end
 
   def reset_game
     @current_solution = []
     create_solution
     @current_move = []
+    @first_move = true
   end
 
   def create_solution
@@ -317,9 +321,9 @@ class Game_logic
   def cpu_move
     result = []
     until @board.moves[0..3] == @current_solution
-      
         if @board.moves[4].nil? || @board.moves[4] < 4
-          result = finding_colors
+          return finding_colors
+        
 
         else
           finding_random(result)
@@ -329,28 +333,42 @@ class Game_logic
 
   def finding_colors
     valid_colors = %w[r b g y o p c m]
+    current_color = 'r'
     working_answer = []
     definite_color = []
-    if definite_color.length == 0
+    if @first_move
       valid_colors.shift
-      working_answer= %w[r r r r]
-      %w[r r r r]
+      @first_move = false
+      return %w[r r r r]
     else
-      previous_move = previous_move_status #array with [last move 0..3] [increase in colors right 4], [increase both right 5]
+      
+      previous_move = previous_move_status # array with [last move 0..3] [increase in colors right 4], [increase both right 5]
       colors_increase = previous_move[4]
       both_increase = previous_move[5]
-
-      # copy definite color to working answer
-      # fill remaining spaces of working_answer with valid_colors[0]
-      # valid_colors.shift
+      colors_increase.to_i.times do # how ever many colors right appear
+        definite_color.push[current_color] # hold that many of the color in this array.
+      end
+      current_color = valid_colors[0] # switch the current color
+      working_answer = [] # reset working_answer
+      working_answer.concat(definite_color) # spread definite colors to the working array
+      (4 - working_answer.length).times do # prepare to fill remaining spots
+        working_answer.push(current_color)
+      end
+      valid_colors.shift # remove used color from pool of colors
+      working_answer # return answer to game loop
     end
   end
 
   def previous_move_status
-    return_array = @board.moves.slice[-1][0..3]
-    return_array.push(board.moves[-1][4] - board[-2][4])
-    return_array.push(board.moves[-1][5] - board[-2][5])
-    return_array
+    return_array = @board.moves[-1].slice(0..3)
+    if @board.moves.length <= 2
+      return_array.push(@board.moves[-1][4])
+      return_array.push(@board.moves[-1][5])
+    else
+      return_array.push(@board.moves[-1][4] - @board[-2][4])
+      return_array.push(@board.moves[-1][5] - @board[-2][5])
+      return_array
+    end
   end
     
   def finding_random
