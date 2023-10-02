@@ -142,8 +142,15 @@ class Board
     Status Legend:
     C - Correct Color   | P - Correct Color and Position
 
+    Computer Mode:
+    There is a future plan to implement a legit solving algorithm that
+    works better than just passing random combos. For now this is a tech demo
+    and the game flow is finished. See Readme for more info.
+
     Enter 1 to play as the code-breaker.
-    Enter 2 to enter a code for the computer to try to solve. *Non-functioning*
+    Enter 2 to enter a code for the computer to try to solve. (The computer is too dumb to ever win.)
+
+
     OPENING
 
     puts opening_screen
@@ -200,7 +207,7 @@ class Game
       board.moves.push(logic.do_turn(get_current_move))
       system 'clear'
       puts ''
-      p logic.current_solution # TESTING - replace with puts '' for proper gamespace draw
+      puts ''
       puts ''
 
       board.draw_board
@@ -319,60 +326,14 @@ class Game_logic
   end  
 
   def cpu_move
-    result = []
-    until @board.moves[0..3] == @current_solution
-        if @board.moves[4].nil? || @board.moves[4] < 4
-          return finding_colors
-        
-
-        else
-          finding_random(result)
-        end
-    end
-  end
-
-  def finding_colors
+    #return array of 4 strings of valid moves
     valid_colors = %w[r b g y o p c m]
-    current_color = 'r'
-    working_answer = []
-    definite_color = []
-    if @first_move
-      valid_colors.shift
-      @first_move = false
-      return %w[r r r r]
-    else
-      
-      previous_move = previous_move_status # array with [last move 0..3] [increase in colors right 4], [increase both right 5]
-      colors_increase = previous_move[4]
-      both_increase = previous_move[5]
-      colors_increase.to_i.times do # how ever many colors right appear
-        definite_color.push[current_color] # hold that many of the color in this array.
-      end
-      current_color = valid_colors[0] # switch the current color
-      working_answer = [] # reset working_answer
-      working_answer.concat(definite_color) # spread definite colors to the working array
-      (4 - working_answer.length).times do # prepare to fill remaining spots
-        working_answer.push(current_color)
-      end
-      valid_colors.shift # remove used color from pool of colors
-      working_answer # return answer to game loop
+    move = []
+    4.times do
+       #Randomly select a valid color from the valid_colors array
+      move << valid_colors.sample
     end
-  end
-
-  def previous_move_status
-    return_array = @board.moves[-1].slice(0..3)
-    if @board.moves.length <= 2
-      return_array.push(@board.moves[-1][4])
-      return_array.push(@board.moves[-1][5])
-    else
-      return_array.push(@board.moves[-1][4] - @board[-2][4])
-      return_array.push(@board.moves[-1][5] - @board[-2][5])
-      return_array
-    end
-  end
-    
-  def finding_random
-    puts "One day this will return a move"
+    move
   end
 end
 

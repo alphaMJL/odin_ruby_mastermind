@@ -1,7 +1,11 @@
 # odin_ruby_mastermind
-Ruby console mastermind game
+Ruby console mastermind ga
 
-This readme will contain the requirements and notes on my development process
+This was a good project for working with OOP design. The basic human game too 4-6 hours to implement, then I spent 8-10 hours trying to build an AI algorithm by attempting to use my human strategy and turn that into code. I also tried to understand the Knuth algorithm which uses more advanced techniques to brute force the possible remaining answers. At this point in my Ruby journey the time requirement of continuing to try to implement advanced solving would be high and I should not lose momentum. I believe I have filled the requirements of the assignment and you will see that they suggest you can at first let the CPU cheat by having access to the answer directly. Then they say "If you want to follow the rules of the game, you’ll need to research strategies for solving Mastermind" indicating this is optional. I am happy with the progress on this so far. The game is fully functional as a human player, and the ASCII graphics give it a slight improvement over a text only version.
+
+
+
+The following will contain the requirements and notes on my development process
 
 Requirements:
 Build a Mastermind game from the command line where you have 12 turns to guess the secret code, starting with you guessing the computer’s random code.
